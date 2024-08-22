@@ -26,20 +26,21 @@ while True:
     movement_detected = False
     cv2.putText(frame, "Dot: Average Movement", (370, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     for contour in contours:
-        if cv2.contourArea(contour) > 200:
+        if cv2.contourArea(contour) > 2000:
             M = cv2.moments(contour)
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
                 centroids.append((cX, cY))
+                epsilon = 0.001 * cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, epsilon, True)
+
+                cv2.drawContours(frame, [approx], -1, (0, 255, 0), 4)
                 
-                # Optional: Draw the bounding rectangle for each contour
-                (x, y, w, h) = cv2.boundingRect(contour)
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)# Adjust the threshold as needed
+                
             movement_detected = True
-            (x, y, w, h) = cv2.boundingRect(contour)
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-              
+            
+    
     
     if not movement_detected:
         cv2.rectangle(frame1, (10, 0), (400, 40), (0, 0, 0), -1)
@@ -47,13 +48,14 @@ while True:
     else:
         if centroids:
             avg_centroid = np.mean(centroids, axis=0).astype(int)
-            # Draw a circle at the average centroid position
+            
             cv2.circle(frame, (avg_centroid[0], avg_centroid[1]), 10, (0, 0, 255), -1)
         cv2.rectangle(frame1, (10, 0), (400, 40), (0, 0, 0), -1)
         cv2.putText(frame, "Status: Movement", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     
     # Display the frame
-    resized_frame = cv2.resize(frame, (1920, 1080), interpolation=cv2.INTER_AREA)
+    resized_frame = cv2.resize(frame, (2560, 1620), interpolation=cv2.INTER_AREA)
+    
     cv2.imshow('feed', resized_frame)
     
     frame1 = frame2
