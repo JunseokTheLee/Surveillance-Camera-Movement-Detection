@@ -26,6 +26,7 @@ while True:
     movement_detected = False
     cv2.putText(frame, "Dot: Average Movement", (370, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     for contour in contours:
+        (x, y, w, h) = cv2.boundingRect(contour)
         if cv2.contourArea(contour) > 2000:
             M = cv2.moments(contour)
             if M["m00"] != 0:
@@ -34,7 +35,7 @@ while True:
                 centroids.append((cX, cY))
                 epsilon = 0.001 * cv2.arcLength(contour, True)
                 approx = cv2.approxPolyDP(contour, epsilon, True)
-
+                cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 2)
                 cv2.drawContours(frame, [approx], -1, (0, 255, 0), 4)
                 
                 
